@@ -1,0 +1,68 @@
+# Publishes a GitHub Release with a universal macOS binary for every version tag.
+# vX.Y.Z -> latest release; vX.Y.Z-alpha.N / -beta.N / -rc.N -> pre-release.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)publish, e.g. v0.1.0
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Tag must match Cargo.toml version
+        run: |
+          v=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          if [ "v$v" != "$TAG" ]; then
+            echo "::error::tag $TAG does not match Cargo.toml version $v"
+            exit 1
+          fi
+
+      - name: Toolchain
+        run: |
+          brew install protobuf
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build universal binary
+        run: |
+          cargo build --release --locked --target aarch64-apple-darwin
+          cargo build --release --locked --target x86_64-apple-darwin
+          mkdir dist
+          lipo -create -output dist/dropbridge \
+            target/aarch64-apple-darwin/release/dropbridge \
+            target/x86_64-apple-darwin/release/dropbridge
+          dist/dropbridge --version
+          cp README.md LICENSE dist/
+          tar -czf "dropbridge-$TAG-macos-universal.tar.gz" -C dist .
+          shasum -a 256 dropbridge-*.tar.gz > checksums.txt
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pre=""
+          case "$TAG" in *-*) pre="--prerelease" ;; esac
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dropbridge-*.tar.gz checksums.txt --clobber
+          else
+            gh release create "$TAG" --verify-tag --generate-notes $pre \
+              --title "dropbridge $TAG" dropbridge-*.tar.gz checksums.txt
+          fi
