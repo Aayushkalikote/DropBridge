@@ -15,6 +15,9 @@ brew services start dropbridge
 
 If macOS asks about **local network** access, click **Allow**.
 
+> [!IMPORTANT]
+> Install DropBridge with Homebrew only. The files on the [Releases](https://github.com/Aayushkalikote/DropBridge/releases) page are for Homebrew to download. macOS blocks the `dropbridge` binary if you download it in a browser, because Apple has not signed it yet. If you already downloaded it, unblock it with `xattr -d com.apple.quarantine dropbridge`.
+
 ## Set up the phone (once)
 
 1. Use the **same Wi-Fi** as the Mac.
