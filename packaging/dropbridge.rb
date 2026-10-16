@@ -3,7 +3,7 @@ class Dropbridge < Formula
   desc "Show Android phones in macOS AirDrop and receive Quick Share on your Mac"
   homepage "https://github.com/Aayushkalikote/DropBridge"
   url "https://github.com/Aayushkalikote/DropBridge/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "SHA256_OF_RELEASE_TARBALL"
+  sha256 "9ed9ad1d3cd923174f4670f4a45a78010717c0ff03de492f272ff0a7837cbab6"
   license "GPL-3.0-only"
   head "https://github.com/Aayushkalikote/DropBridge.git", branch: "main"
 
