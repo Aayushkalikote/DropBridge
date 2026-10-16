@@ -95,6 +95,8 @@ For each Quick Share device on your network, DropBridge advertises a matching Ai
 <details>
 <summary><b>🛠️ Development</b></summary>
 
+Want to contribute? Read [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ```sh
 cargo test
 cargo run --release -- --test-peer        # Mac side without a phone
