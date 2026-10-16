@@ -1,0 +1,43 @@
+name: Bug report
+description: Something doesn't work
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: DropBridge version
+      placeholder: output of `dropbridge --version`
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+      placeholder: macOS 26.1, MacBook Air M2
+    validations:
+      required: true
+  - type: input
+    id: android
+    attributes:
+      label: Android phone and Android version
+      placeholder: Pixel 9, Android 16
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `dropbridge doctor`
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Run `RUST_LOG=dropbridge=debug dropbridge` and reproduce the problem. Remove anything private first.
+      render: text
