@@ -18,7 +18,7 @@ plist = "1.7"
 rqs_lib = { git = "https://github.com/Martichou/rquickshare", rev = "378d8ae969941bee4bf60ad34ac9cf8bb7005eb7", default-features = false }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
 rustls-pemfile = "2.2"
-socket2 = { version = "0.5", features = ["all"] }
+socket2 = { version = "0.6", features = ["all"] }
 tokio = { version = "1.43", features = ["macros", "rt-multi-thread", "net", "sync", "time", "io-util", "signal", "fs", "process"] }
 tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12", "logging"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
