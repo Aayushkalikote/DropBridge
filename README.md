@@ -1,11 +1,10 @@
-# dropbridge
+# DropBridge
 
-Send files between your Mac and Android phones the native way on both sides:
+**AirDrop ↔ Quick Share for Mac and Android.** Your phone shows up in Finder's AirDrop, and your Mac shows up in Android's Quick Share. There's no app on the phone and nothing to pair.
 
-- **Mac → Android:** your phone shows up in Finder's **AirDrop** window. Drop a file on it and accept on the phone.
-- **Android → Mac:** your Mac shows up in Android's **Quick Share** sheet. Accept on the Mac and the file lands in `~/Downloads`.
-
-There's no app to install on the phone and nothing to pair. dropbridge runs quietly in the background on the Mac.
+[![Release](https://img.shields.io/github/v/release/Aayushkalikote/DropBridge?include_prereleases)](https://github.com/Aayushkalikote/DropBridge/releases)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+![macOS](https://img.shields.io/badge/macOS-26%2B-black?logo=apple)
 
 ## Install
 
@@ -14,36 +13,52 @@ brew install aayushkalikote/tap/dropbridge
 brew services start dropbridge
 ```
 
-`brew services` starts dropbridge now and at every login. If macOS asks whether dropbridge may find devices on your local network, click **Allow**.
+If macOS asks about **local network** access, click **Allow**.
 
 ## Set up the phone (once)
 
-1. Connect it to the **same Wi-Fi** as the Mac.
-2. Open **Quick Share** and set *Who can share with you* to **Everyone**.
+1. Use the **same Wi-Fi** as the Mac.
+2. In **Quick Share**, set *Who can share with you* to **Everyone**.
 
-Quick Share comes with Google Play Services, so Samsung, Pixel, OnePlus, Motorola and most other Android phones have it.
+## Use
 
-## Use it
+| From → To | How |
+| --- | --- |
+| **Mac → Android** | Finder → **AirDrop** → drop files on the phone → accept on the phone |
+| **Android → Mac** | Share → **Quick Share** → pick the Mac → **Accept** on the Mac (files go to `~/Downloads`) |
 
-**Mac → Android.** Unlock the phone. Open Finder → AirDrop (or use Share → AirDrop) and drop files on the phone. Accept on the phone. Finder waits on *Sending…* until you do. It shows *Failed* if the phone declines or doesn't answer within 10 minutes.
+Keep the phone **unlocked**: Android hides Quick Share while the screen is off.
 
-**Android → Mac.** On the phone, tap Share → Quick Share and pick your Mac. Click **Accept** in the dialog on the Mac and check the PIN matches the phone. The files land in `~/Downloads`.
+## Uninstall
 
-The first time, a phone may show up as **"Android phone"**. Phones in *Everyone* mode often keep their name private until a sender nearby asks over Bluetooth, which a Mac can't do. Send one file from the phone to the Mac and dropbridge learns and remembers its name.
+```sh
+brew services stop dropbridge
+brew uninstall dropbridge
+rm -rf ~/Library/Application\ Support/dropbridge ~/Library/Caches/dropbridge  # optional: certificate and remembered phone names
+```
 
-## If the phone doesn't show up
+---
+
+<details>
+<summary><b>🩺 Phone not showing up?</b></summary>
+
+Run:
 
 ```sh
 dropbridge doctor
 ```
 
-This command checks Wi-Fi, AirDrop and the background service, and lists the Quick Share devices it can see. The usual causes are:
+It checks Wi-Fi, AirDrop and the background service, and lists the phones it can see. Common fixes:
 
-- **The phone is asleep.** Android stops announcing Quick Share while the screen is off. Unlock it and the phone reappears within a few seconds.
-- **The phone and Mac are on different networks.** Guest Wi-Fi and networks with "client isolation" also block it.
-- **macOS blocked network access.** Check System Settings → Privacy & Security → Local Network and allow dropbridge.
+- **The phone is asleep.** Unlock it, and it reappears within seconds.
+- **Different networks.** Guest Wi-Fi and networks with "client isolation" block it.
+- **Local network blocked.** Allow `dropbridge` in System Settings → Privacy & Security → Local Network.
+- **Shows as "Android phone".** Some phones hide their name. Send one file from the phone to the Mac, and DropBridge remembers the name.
 
-## Options
+</details>
+
+<details>
+<summary><b>⚙️ Options</b></summary>
 
 ```
 dropbridge [--auto-accept] [--download-dir <path>] [--test-peer]
@@ -52,33 +67,59 @@ dropbridge doctor
 
 | Option | Effect |
 | --- | --- |
-| `--auto-accept` | Accept incoming Quick Share files without asking. Anyone on your Wi-Fi could then send you files. |
+| `--auto-accept` | Accept incoming files without asking. Anyone on your Wi-Fi could then send you files. |
 | `--download-dir <path>` | Where incoming files go (default `~/Downloads`). |
-| `--test-peer` | Adds a "dropbridge test" device to AirDrop that saves what you drop on it. It checks the Mac side without a phone. |
+| `--test-peer` | Adds a "dropbridge test" device to AirDrop. It checks the Mac side without a phone. |
 
-To use an option with the background service, run `brew services stop dropbridge` and start `dropbridge` with the option yourself.
+To use an option, run `brew services stop dropbridge` and start `dropbridge` with the option yourself.
 
-## Limits
+</details>
 
-- **Same Wi-Fi only.** Android's Quick Share can also use Bluetooth and Wi-Fi Direct, but macOS doesn't let apps use those.
-- **Mac ↔ Android only.** An iPhone can't send to the phone, because iOS doesn't let apps add devices to its AirDrop list.
-- **Unofficial.** dropbridge speaks AirDrop and Quick Share the way their makers do, but neither Apple nor Google supports it. An OS update can break it.
-- **Finder sends folders as separate files.** Quick Share has no folders.
+<details>
+<summary><b>⚠️ Limits</b></summary>
 
-## How it works
+- **Same Wi-Fi only.** macOS doesn't let apps use Quick Share's Bluetooth or Wi-Fi Direct modes.
+- **Mac ↔ Android only.** iOS doesn't let apps add devices to an iPhone's AirDrop list.
+- **Folders arrive as separate files.** Quick Share has no folders.
+- **Unofficial.** Neither Apple nor Google supports it, so an OS update can break it.
 
-For each Quick Share device on your network, dropbridge advertises a matching AirDrop receiver on the Mac's AWDL interface. macOS's own AirDrop service lists it in Finder like any nearby device. When you drop a file, Finder uploads it to dropbridge over HTTPS. dropbridge unpacks the upload and sends it to the phone over Quick Share. It answers Finder only after the phone has accepted or declined.
+</details>
 
-The Quick Share side uses [rqs_lib](https://github.com/Martichou/rquickshare) from RQuickShare.
+<details>
+<summary><b>🔧 How it works</b></summary>
 
-## Development
+For each Quick Share device on your network, DropBridge advertises a matching AirDrop receiver on the Mac's AWDL interface. macOS lists it in Finder like any nearby device. When you drop a file, Finder uploads it to DropBridge over HTTPS. DropBridge unpacks the upload and sends it to the phone over Quick Share. It answers Finder only after the phone has accepted or declined. The Quick Share side uses [rqs_lib](https://github.com/Martichou/rquickshare).
+
+</details>
+
+<details>
+<summary><b>🛠️ Development</b></summary>
 
 ```sh
 cargo test
-cargo run --release -- --test-peer          # Mac side without a phone
+cargo run --release -- --test-peer        # Mac side without a phone
 RUST_LOG=dropbridge=debug cargo run --release
 ```
 
+**Releasing:** add a changelog section below, set `version` in `Cargo.toml`, then push a tag such as `v0.2.0` or `v0.2.0-alpha.1`. Tags with a `-` suffix become pre-releases. Start every changelog entry with `Breaking:`, `Feature:`, `Enhancement:`, `Fix:`, `Security:` or `Docs:`. The release notes list entries in that order, and an untyped entry stops the release.
+
+</details>
+
+## Changelog
+
+<details>
+<summary><b>v0.1.0</b> — 2026-10-16 (latest)</summary>
+
+### v0.1.0
+
+- Feature: Android phones on the same Wi-Fi show up in Finder's AirDrop window. Dropped files go to the phone over Quick Share.
+- Feature: The Mac shows up in Android's Quick Share sheet. Incoming files ask Accept/Decline with a PIN and land in `~/Downloads`.
+- Feature: `dropbridge doctor` checks Wi-Fi, AirDrop and the background service, and lists the phones in reach.
+- Feature: Homebrew formula with a `brew services` background service.
+- Enhancement: Phones that keep their Quick Share name hidden still work. DropBridge learns a phone's name from its first share and remembers it.
+
+</details>
+
 ## License
 
-GPL-3.0-only. AirDrop is a trademark of Apple Inc. Quick Share is a trademark of Google LLC and Samsung Electronics. dropbridge isn't affiliated with any of them.
+GPL-3.0-only. AirDrop is a trademark of Apple Inc. Quick Share is a trademark of Google LLC and Samsung Electronics. DropBridge isn't affiliated with any of them.

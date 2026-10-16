@@ -54,6 +54,17 @@ jobs:
           tar -czf "dropbridge-$TAG-macos-universal.tar.gz" -C dist .
           shasum -a 256 dropbridge-*.tar.gz > checksums.txt
 
+      - name: Release notes from the README changelog
+        run: |
+          # Fails the release if an entry has no "Type:" prefix.
+          .github/release-notes.sh "$TAG" > notes.md
+          if [ -s notes.md ]; then
+            echo "NOTES=--notes-file=notes.md" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No '### $TAG' section in the README changelog; using generated notes"
+            echo "NOTES=--generate-notes" >> "$GITHUB_ENV"
+          fi
+
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -62,7 +73,8 @@ jobs:
           case "$TAG" in *-*) pre="--prerelease" ;; esac
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dropbridge-*.tar.gz checksums.txt --clobber
+            if [ "$NOTES" != "--generate-notes" ]; then gh release edit "$TAG" "$NOTES"; fi
           else
-            gh release create "$TAG" --verify-tag --generate-notes $pre \
-              --title "dropbridge $TAG" dropbridge-*.tar.gz checksums.txt
+            gh release create "$TAG" --verify-tag "$NOTES" $pre \
+              --title "DropBridge $TAG" dropbridge-*.tar.gz checksums.txt
           fi
