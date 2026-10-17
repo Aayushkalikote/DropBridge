@@ -57,7 +57,13 @@ pub fn start() -> Result<mpsc::Receiver<Event>> {
                     if local_ipv4s().contains(&ip) {
                         continue; // our own Quick Share receiver
                     }
-                    let name = info.get_property_val_str("n").and_then(device_name);
+                    let n = info.get_property_val_str("n");
+                    if n.is_some_and(is_computer) {
+                        // PCs and Macs running Quick Share apps; Macs already show in AirDrop.
+                        log::debug!("skipping computer {} at {ip}", info.get_fullname());
+                        continue;
+                    }
+                    let name = n.and_then(device_name);
                     by_ip.entry(ip).or_default().insert(info.get_fullname().to_string());
                     leaving.remove(&ip);
                     Event::Found { ip, name, addr: format!("{ip}:{}", info.get_port()) }
@@ -81,6 +87,12 @@ pub fn start() -> Result<mpsc::Receiver<Event>> {
         }
     });
     Ok(rx)
+}
+
+/// Device type 3 (laptop/desktop) in bits 1..3 of the endpoint info's first byte.
+fn is_computer(n: &str) -> bool {
+    let b = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(n.trim_end_matches('='));
+    b.ok().and_then(|b| b.first().copied()).is_some_and(|f| (f >> 1) & 7 == 3)
 }
 
 /// Device name from the base64url endpoint info, if the device advertises it
@@ -116,13 +128,21 @@ pub fn local_ipv4s() -> Vec<Ipv4Addr> {
 
 #[cfg(test)]
 mod tests {
-    use super::device_name;
+    use super::{device_name, is_computer};
     use base64::Engine;
 
     #[test]
     fn hidden_endpoint_has_no_name() {
         // Captured from a Galaxy A56 in Everyone mode with the screen off.
         assert_eq!(device_name("MrBfzSJmz0QMn60JuiT_f9k"), None);
+    }
+
+    #[test]
+    fn skips_computers_only() {
+        assert!(!is_computer("MrBfzSJmz0QMn60JuiT_f9k")); // hidden Galaxy A56: phone
+        let enc = |f: u8| base64::engine::general_purpose::URL_SAFE_NO_PAD.encode([f; 18]);
+        assert!(is_computer(&enc(3 << 1)));
+        assert!(!is_computer(&enc(1 << 1)));
     }
 
     #[test]

@@ -6,6 +6,26 @@
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 ![macOS](https://img.shields.io/badge/macOS-26%2B-black?logo=apple)
 
+[![Watch the DropBridge film (77 s)](docs/dropbridge-film.jpg)](docs/dropbridge-film.mp4)
+
+▶ **[Watch the 77-second film](docs/dropbridge-film.mp4)** to see how it works.
+
+## Why DropBridge?
+
+Files go straight from the Mac to the phone over your Wi-Fi. Nothing uploads to a cloud and there's no size cap, so large videos move at your Wi-Fi's speed. You use the AirDrop and Quick Share screens you already know.
+
+| | DropBridge | Google's AirDrop support | NearDrop | LocalSend | KDE Connect | Send Anywhere |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Nothing to install on the phone | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Phone shows up in Finder's AirDrop | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Mac shows up in Android's Quick Share | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Works with any Android phone | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ |
+| Files stay on your network | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Free | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Open source | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+
+🟡 Google's AirDrop support works only on some Pixel and Galaxy models. Send Anywhere relays files through its servers when a direct connection fails, and its free tier has ads and limits. NearDrop sends from the Finder **Share** menu, not the AirDrop window. Comparison as of October 2026.
+
 ## Install
 
 ```sh
