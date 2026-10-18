@@ -6,9 +6,7 @@
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 ![macOS](https://img.shields.io/badge/macOS-26%2B-black?logo=apple)
 
-[![Watch the DropBridge film (77 s)](docs/dropbridge-film.jpg)](docs/dropbridge-film.mp4)
-
-▶ **[Watch the 77-second film](docs/dropbridge-film.mp4)** to see how it works.
+https://github.com/user-attachments/assets/9e5c04db-2abf-4916-bfa1-65eecae10b17
 
 ## Why DropBridge?
 
