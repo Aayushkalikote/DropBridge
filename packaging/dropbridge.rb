@@ -13,6 +13,9 @@ class Dropbridge < Formula
 
   def install
     system "cargo", "install", *std_cargo_args
+    # What's new, printed in the caveats after install and upgrade; empty for HEAD builds
+    notes = Utils.popen_read("bash", ".github/release-notes.sh", "v#{version}")
+    (pkgshare/"changes.txt").write(notes) unless notes.empty?
   end
 
   service do
@@ -24,9 +27,19 @@ class Dropbridge < Formula
   end
 
   def caveats
-    <<~EOS
+    notes = pkgshare/"changes.txt"
+    news = if notes.exist?
+      items = notes.read.gsub(/^- \*\*(\w+):\*\*/, '  - \1:')
+      "🎉 What's new in DropBridge #{version}:\n#{items}\n"
+    else
+      ""
+    end
+    news + <<~EOS
       Start it now and at every login:
         brew services start dropbridge
+
+      After an upgrade, load the new version:
+        brew services restart dropbridge
 
       On the phone: same Wi-Fi, Quick Share → Everyone. Then check with:
         dropbridge doctor

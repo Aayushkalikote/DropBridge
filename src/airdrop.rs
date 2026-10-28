@@ -5,7 +5,7 @@
 
 use std::future::Future;
 use std::io;
-use std::net::{Ipv6Addr, SocketAddr};
+use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
 use std::sync::Arc;
@@ -65,6 +65,13 @@ pub async fn serve(listener: TcpListener, tls: TlsAcceptor, rx: Arc<Receiver>) {
                 continue;
             }
         };
+        // Serve only this Mac's Finder. AWDL reaches nearby Macs too, and their files would pass
+        // through this Mac; refusing them also keeps the phone out of their AirDrop list.
+        let own = from.ip().is_loopback() || matches!(from.ip(), IpAddr::V6(ip) if Some(ip) == crate::bonjour::awdl_address());
+        if !own {
+            log::debug!("ignoring AirDrop connection from another Mac at {from}");
+            continue;
+        }
         let (tls, rx) = (tls.clone(), rx.clone());
         tokio::spawn(async move {
             match tls.accept(tcp).await {

@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon.png" width="128" alt="DropBridge logo: a white bridge with a drop under it on a blue tile"></p>
+
 # DropBridge
 
 **AirDrop ↔ Quick Share for Mac and Android.** Your phone shows up in Finder's AirDrop, and your Mac shows up in Android's Quick Share. There's no app on the phone and nothing to pair.
@@ -50,6 +52,18 @@ If macOS asks about **local network** access, click **Allow**.
 
 Keep the phone **unlocked**: Android hides Quick Share while the screen is off.
 
+## Update
+
+DropBridge shows a macOS notification when a new release is out. To update:
+
+```sh
+brew update
+brew upgrade dropbridge
+brew services restart dropbridge
+```
+
+`brew upgrade` lists what changed in the new version.
+
 ## Uninstall
 
 ```sh
@@ -74,7 +88,8 @@ It checks Wi-Fi, AirDrop and the background service, and lists the phones it can
 - **The phone is asleep.** Unlock it, and it reappears within seconds.
 - **Different networks.** Guest Wi-Fi and networks with "client isolation" block it.
 - **Local network blocked.** Allow `dropbridge` in System Settings → Privacy & Security → Local Network.
-- **Shows as "Android phone".** Some phones hide their name. Send one file from the phone to the Mac, and DropBridge remembers the name.
+- **Shows as "Android phone 165" (or another number).** Some phones hide their name, so DropBridge adds the last number of the phone's IP instead. Send one file from the phone to the Mac, or scan the QR code below, and DropBridge remembers the name.
+- **Still missing.** Run `dropbridge qr <file>...` and scan the code with the phone's camera app. The files go to the phone as soon as it has scanned the code. Plain `dropbridge qr` only makes the phone show up in AirDrop, with its real name, for a couple of minutes; the phone shows "Connecting" until you drop a file on it.
 
 </details>
 
@@ -84,6 +99,7 @@ It checks Wi-Fi, AirDrop and the background service, and lists the phones it can
 ```
 dropbridge [--auto-accept] [--download-dir <path>] [--test-peer]
 dropbridge doctor
+dropbridge qr [<file>...]
 ```
 
 | Option | Effect |
@@ -91,6 +107,7 @@ dropbridge doctor
 | `--auto-accept` | Accept incoming files without asking. Anyone on your Wi-Fi could then send you files. |
 | `--download-dir <path>` | Where incoming files go (default `~/Downloads`). |
 | `--test-peer` | Adds a "dropbridge test" device to AirDrop. It checks the Mac side without a phone. |
+| `qr [<file>...]` | Prints a QR code. The files go to the phone that scans it. Without files, the phone shows up in AirDrop. |
 
 To use an option, run `brew services stop dropbridge` and start `dropbridge` with the option yourself.
 
@@ -131,7 +148,22 @@ RUST_LOG=dropbridge=debug cargo run --release
 ## Changelog
 
 <details>
-<summary><b>v0.1.0</b> — 2026-10-16 (latest)</summary>
+<summary><b>v0.1.1</b> — 2026-10-28 </summary>
+
+### v0.1.1
+
+- Fix: Two Macs running DropBridge near the same phone no longer share one AirDrop entry. Each Mac now shows its own entry for the phone.
+- Security: DropBridge only accepts AirDrop from the Mac it runs on. Before, nearby Macs saw its phones in their AirDrop list too, and files sent that way passed through this Mac.
+- Fix: Names of Macs that send over Quick Share are no longer remembered, so a phone that later gets the same IP no longer shows a Mac's name.
+- Feature: DropBridge checks GitHub once a day for a newer release and shows a macOS notification, once per version. `dropbridge doctor` shows it too.
+- Feature: `dropbridge qr <file>...` prints a Quick Share QR code and sends the files to the phone that scans it, even when the phone hides its name or is not found on its own. Without files, the phone shows up in AirDrop under its real name.
+- Enhancement: A phone whose name is not known yet shows as "Android phone" plus the last number of its IP (for example "Android phone 165"), so several such phones can be told apart.
+- Enhancement: `brew install` and `brew upgrade` list what changed in the new version.
+
+</details>
+
+<details>
+<summary><b>v0.1.0</b> — 2026-10-16</summary>
 
 ### v0.1.0
 
