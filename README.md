@@ -148,6 +148,15 @@ RUST_LOG=dropbridge=debug cargo run --release
 ## Changelog
 
 <details>
+<summary><b>v0.1.2</b> — unreleased</summary>
+
+### v0.1.2
+
+- Enhancement: New releases reach `brew upgrade` right away. The release workflow now updates the Homebrew formula itself.
+
+</details>
+
+<details>
 <summary><b>v0.1.1</b> — 2026-10-28 </summary>
 
 ### v0.1.1
