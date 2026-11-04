@@ -16,7 +16,7 @@ libc = "0.2"
 log = "0.4"
 # Same fork rqs_lib uses, so only one copy is built.
 mdns-sd = { git = "https://github.com/Martichou/mdns-sd", branch = "unsolicited" }
-p256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
+p256 = { version = "0.14", default-features = false, features = ["arithmetic"] }
 plist = "1.7"
 qrcode = { version = "0.14", default-features = false }
 rqs_lib = { git = "https://github.com/Martichou/rquickshare", rev = "378d8ae969941bee4bf60ad34ac9cf8bb7005eb7", default-features = false }
