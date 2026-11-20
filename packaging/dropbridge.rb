@@ -1,21 +1,30 @@
-# Homebrew formula. Lives in github.com/Aayushkalikote/homebrew-tap as Formula/dropbridge.rb.
+# Homebrew formula: the source of truth for Formula/dropbridge.rb in github.com/Aayushkalikote/homebrew-tap.
+# release.yml fills in url and sha256 for each release and pushes it there; edit it here, not in the tap.
 class Dropbridge < Formula
   desc "Show Android phones in macOS AirDrop and receive Quick Share on your Mac"
   homepage "https://github.com/Aayushkalikote/DropBridge"
-  url "https://github.com/Aayushkalikote/DropBridge/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "8682142f3df7e7058f9d959936fb945e8c7d7e2f5712c09511b0e7fda89d608d"
+  # Prebuilt universal binary from the GitHub release, so users need no Rust toolchain.
+  url "https://github.com/Aayushkalikote/DropBridge/releases/download/v0.1.1/dropbridge-v0.1.1-macos-universal.tar.gz"
+  sha256 "cffb6c33c2ff20e354ddfb8384760a51f34bb9e9d184f728ab987a28edb211f3"
   license "GPL-3.0-only"
-  head "https://github.com/Aayushkalikote/DropBridge.git", branch: "main"
 
-  depends_on "protobuf" => :build # rqs_lib generates its protocol code with protoc
-  depends_on "rust" => :build
+  head do
+    url "https://github.com/Aayushkalikote/DropBridge.git", branch: "main"
+    depends_on "protobuf" => :build # rqs_lib generates its protocol code with protoc
+    depends_on "rust" => :build
+  end
+
   depends_on :macos
 
   def install
-    system "cargo", "install", *std_cargo_args
-    # What's new, printed in the caveats after install and upgrade; empty for HEAD builds
-    notes = Utils.popen_read("bash", ".github/release-notes.sh", "v#{version}")
-    (pkgshare/"changes.txt").write(notes) unless notes.empty?
+    if build.head?
+      system "cargo", "install", *std_cargo_args
+    else
+      bin.install "dropbridge"
+    end
+    # What's new, printed in the caveats: this version's changelog section from the bundled README
+    news = File.read("README.md")[%r{^### v#{Regexp.escape(version.to_s)}\n(.*?)(?=^###|^</details>)}m, 1]
+    (pkgshare/"changes.txt").write(news.strip) if news && !news.strip.empty?
   end
 
   service do
@@ -27,13 +36,8 @@ class Dropbridge < Formula
   end
 
   def caveats
-    notes = pkgshare/"changes.txt"
-    news = if notes.exist?
-      items = notes.read.gsub(/^- \*\*(\w+):\*\*/, '  - \1:')
-      "🎉 What's new in DropBridge #{version}:\n#{items}\n"
-    else
-      ""
-    end
+    changes = pkgshare/"changes.txt"
+    news = changes.exist? ? "🎉 What's new in DropBridge #{version}:\n#{changes.read.gsub(/^/, "  ")}\n\n" : ""
     news + <<~EOS
       Start it now and at every login:
         brew services start dropbridge

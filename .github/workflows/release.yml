@@ -95,3 +95,31 @@ jobs:
             gh release create "$TAG" --verify-tag "$NOTES" $pre \
               --title "DropBridge $TAG" dropbridge-*.tar.gz checksums.txt
           fi
+
+      - name: Update the Homebrew formula
+        if: ${{ !contains(env.TAG, '-') }} # pre-releases stay out of brew upgrade
+        env:
+          # Fine-grained token: Contents read/write on Aayushkalikote/homebrew-tap only.
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::error::HOMEBREW_TAP_TOKEN is not set; brew upgrade stays on the old version until the formula is updated"
+            exit 1
+          fi
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/dropbridge-$TAG-macos-universal.tar.gz"
+          sha=$(awk '{print $1}' checksums.txt)
+          git clone --depth 1 "https://x-access-token:$TAP_TOKEN@github.com/Aayushkalikote/homebrew-tap.git" tap
+          # Top-level url/sha256 only; the head block's url is indented further.
+          sed -e "s|^  url \".*\"|  url \"$url\"|" -e "s|^  sha256 \".*\"|  sha256 \"$sha\"|" \
+            packaging/dropbridge.rb > tap/Formula/dropbridge.rb
+          grep -q "sha256 \"$sha\"" tap/Formula/dropbridge.rb && grep -qF "url \"$url\"" tap/Formula/dropbridge.rb
+          cd tap
+          git config user.name "Aayushkalikote"
+          git config user.email "aayushkalikote.codewing@gmail.com"
+          git add Formula/dropbridge.rb
+          if git diff --cached --quiet; then
+            echo "Formula already points at $TAG"
+            exit 0
+          fi
+          git commit -m "Update DropBridge to ${TAG#v}"
+          git push
