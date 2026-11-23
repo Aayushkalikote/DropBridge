@@ -241,7 +241,8 @@ fn advertise_peer(
     let tag = format!("{:012x}", h.finish() & 0xffff_ffff_ffff);
     let listener = airdrop::bind()?;
     let port = listener.local_addr()?.port();
-    let receiver = airdrop::Receiver { name: format!("DropBridge - {name}"), model: "Android".into(), spool: spool.join(&tag), forward };
+    // Short marker: Finder shows about two lines per name, so a long prefix cuts off the phone name.
+    let receiver = airdrop::Receiver { name: format!("🌉 {name}"), model: "Android".into(), spool: spool.join(&tag), forward };
     let ad = bonjour::advertise(&tag, &format!("dropbridge-{tag}"), port, AIRDROP_FLAGS)?;
     log::debug!("{name}: service {tag}._airdrop._tcp, host dropbridge-{tag}.local, port {port}");
     Ok((ad, tokio::spawn(airdrop::serve(listener, tls.clone(), Arc::new(receiver)))))

@@ -1,6 +1,6 @@
 [package]
 name = "dropbridge"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Make Android phones show up in macOS AirDrop, and receive Quick Share on your Mac"
 license = "GPL-3.0-only"

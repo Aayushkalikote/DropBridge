@@ -148,6 +148,15 @@ RUST_LOG=dropbridge=debug cargo run --release
 ## Changelog
 
 <details>
+<summary><b>v0.1.2</b></summary>
+
+### v0.1.2
+
+- Fix: Phones show up in Finder's AirDrop as "🌉 <phone name>" instead of "DropBridge - <phone name>". The long prefix made Finder cut the phone name off ("DropBridge - Andro…ne 58"); typical phone names now fit in full.
+
+</details>
+
+<details>
 <summary><b>v0.1.1</b> — 2026-10-28 </summary>
 
 ### v0.1.1
