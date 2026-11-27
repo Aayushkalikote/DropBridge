@@ -18,7 +18,7 @@ log = "0.4"
 mdns-sd = { git = "https://github.com/Martichou/mdns-sd", branch = "unsolicited" }
 p256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
 plist = "1.7"
-qrcode = { version = "0.14", default-features = false }
+qrcode = { version = "0.15", default-features = false }
 rqs_lib = { git = "https://github.com/Martichou/rquickshare", rev = "378d8ae969941bee4bf60ad34ac9cf8bb7005eb7", default-features = false }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
 rustls-pemfile = "2.2"
